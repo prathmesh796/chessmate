@@ -68,19 +68,10 @@ export interface PlayerStats {
     puzzle_rush?: PuzzleRushStats;
 }
 
-
 export interface Game {
     url: string;
     time_class: string;
     pgn: string;
     white: { username: string; result: string };
     black: { username: string; result: string };
-}
-
-export interface ChessDataContextType {
-    userProfile: UserProfile | null;
-    stats: PlayerStats | null;
-    games: Game[] | null;
-    dates: string[];
-    status: status | null;
 }

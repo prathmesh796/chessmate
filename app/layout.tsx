@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ChessDataProvider } from "../context/ChessDataContext";
 import type { AppProps } from "next/app"
 
 const geistSans = Geist({
@@ -23,9 +22,7 @@ export default function RootLayout({children,}: Readonly<{children: React.ReactN
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-chess_bg`}>
-        <ChessDataProvider>
-          {children}
-        </ChessDataProvider>
+        {children}
       </body>
     </html>
   );

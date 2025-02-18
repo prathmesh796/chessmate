@@ -2,8 +2,16 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { UserProfile, PlayerStats, Game, status, ChessDataContextType } from "@/types/types";
-
+import { UserProfile, PlayerStats, Game, status } from "@/types/types";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import Navbar from "@/components/Navbar";
 import React from 'react';
 
@@ -15,6 +23,29 @@ export default function Page({ params }: { params: Promise<{ username: string }>
   const [dates, setDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [status, setStatus] = useState<status | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
+  const totalPages = games ? Math.ceil(games.length / limit) : 0;
+
+  // Get the current games to display
+  const startIndex = (currentPage - 1) * limit;
+  const currentGames = games ? games.slice().reverse().slice(startIndex, startIndex + limit) : [];
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const extractDatesFromArchives = (archives: string[]): string[] => {
     return archives.map(url => url.split("/").slice(-2).join("/"));
@@ -157,7 +188,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
             </select>
 
             <div>
-              {games && games.slice().reverse().map((game, index) => (
+              {currentGames.map((game, index) => (
                 <div key={index} className='flex justify-between p-4 rounded-lg bg-profile_card mb-4'>
                   <div>
                     <h3 className='text-white'>{game.white.username} vs {game.black.username}</h3>
@@ -169,6 +200,22 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                 </div>
               ))}
             </div>
+
+            <Pagination>
+              <PaginationPrevious onClick={() => currentPage > 1 && handlePrevious()}>
+                <PaginationLink>Previous</PaginationLink>
+              </PaginationPrevious>
+              <PaginationContent>
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <PaginationItem key={index + 1} onClick={() => handlePageChange(index + 1)}>
+                    <PaginationLink>{index + 1}</PaginationLink>
+                  </PaginationItem>
+                ))}
+              </PaginationContent>
+              <PaginationNext onClick={() => currentPage < totalPages && handleNext()}>
+                <PaginationLink>Next</PaginationLink>
+              </PaginationNext>
+            </Pagination>
           </section>
 
 
