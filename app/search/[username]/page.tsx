@@ -1,25 +1,36 @@
+"use client"
+
 import Link from 'next/link';
+import { useEffect } from 'react';
+import { useChessData } from '@/context/ChessDataContext';
 
 import Navbar from "@/components/Navbar";
 
 export default async function Page({ params }: { params: Promise<{ username: string }> }) {
   const username = (await params).username;
 
-  let playerData, status;
-  try {
-    const response = await fetch(`https://api.chess.com/pub/player/${username}`);
-    const isOnline = await fetch(`https://api.chess.com/pub/player/${username}/is-online`);
-    if (!response.ok) {
-      const errorMessage = await response.text(); // Get the response body
-      console.error('Error fetching player data:', response.status, errorMessage);
-    }
-    playerData = await response.json();
-    status = await isOnline.json();
-  } catch (error) {
-    console.error('Error :', error);
-    return <div>Error loading player data.</div>;
+  const chessDataContext = useChessData();
+
+  if (!chessDataContext) {
+    return <div>Loading...</div>;
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (username) {
+        await chessDataContext.fetchUserData(username);
+      }
+    };
+
+    fetchData();
+  }, [username, chessDataContext]);
+
+  const playerData = chessDataContext.userProfile;
+  if (!playerData) {
+    return <div>Player data not found</div>;
+  }
+  const status = chessDataContext.status;
+  const dates = chessDataContext.dates;
   return (
     <>
       <header>
@@ -40,25 +51,18 @@ export default async function Page({ params }: { params: Promise<{ username: str
             <div className="flex flex-col items-left justify-center">
               <Link href={playerData.url}><h2 className="text-xl font-semibold text-center mb-2">{playerData.username}</h2></Link>
               <div className='flex items-center gap-1'>
-                <div className={`w-2 h-2 rounded-full ml-2 ${status.online ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <p className='text-gray-600'>{status.online ? 'Online' : 'Offline'}</p>
+                <div className={`w-2 h-2 rounded-full ml-2 ${status ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <p className='text-gray-600'>{status ? 'Online' : 'Offline'}</p>
               </div>
             </div>
           </div>
 
           <div className='bg-gray-700 h-[1px] w-5/4 rounded-full mb-4'></div>
 
-          <p>Rating: <span className="font-bold">{playerData.rating}</span></p>
-          <p>Completion Rate: <span className="font-bold">{playerData.completion_rate}</span></p>
-          <p>Play Time: <span className="font-bold">{playerData.play_time}</span></p>
-          <p>Chess Title: <span className="font-bold">{playerData.title}</span></p>
-          <p>Location: <span className="font-bold">{playerData.location}</span></p>
-          <p>Is Online: <span className="font-bold">{playerData.is_online ? 'Yes' : 'No'}</span></p>
-          <p>Is Suspended: <span className="font-bold">{playerData.is_suspended ? 'Yes' : 'No'}</span></p>
-          <p>Is Patron: <span className="font-bold">{playerData.is_patron ? 'Yes' : 'No'}</span></p>
+          
         </aside>
 
-        
+
         <article className='flex flex-col w-3/4 mx-4'>
           <nav className='flex justify-start p-4 rounded-lg bg-profile_card mb-4'>
             <ul className='flex gap-4'>
@@ -71,7 +75,7 @@ export default async function Page({ params }: { params: Promise<{ username: str
 
           {/* Graph of the players ration */}
           <section className='w-full min-h-40 p-4 rounded-lg bg-profile_card mb-4'>
-            
+
           </section>
 
           {/* win/lose percentage */}
@@ -86,26 +90,18 @@ export default async function Page({ params }: { params: Promise<{ username: str
 
           {/* previous games */}
           <section className='w-full min-h-40 p-4 rounded-lg bg-profile_card mb-4'>
-
+            <h2 className='text-white'>Previous Games</h2>
+            {/* <label>Select a Month:</label>
+            <select onChange={(e) => {selectedDate = e.target.value}}>
+              <option value="">--Select--</option>
+              {dates.map((date, index) => (
+                <option key={index} value={date}>
+                  {date}
+                </option>
+              ))}
+            </select> */}
           </section>
         </article>
-        {/* <div className="flex-grow p-4">
-          <h1 className="text-3xl font-bold">Hello {username}</h1>
-          <div className="mt-4">
-            <img src={playerData.avatar} alt={`${playerData.username}'s avatar`} className="w-24 h-24 rounded-full" />
-            <p>Player ID: {playerData.player_id}</p>
-            <p>URL: <a href={playerData.url} className="text-blue-500">{playerData.url}</a></p>
-            <p>Followers: {playerData.followers}</p>
-            <p>Country: {playerData.country}</p>
-            <p>Last Online: {new Date(playerData.last_online * 1000).toLocaleString()}</p>
-            <p>Joined: {new Date(playerData.joined * 1000).toLocaleString()}</p>
-            <p>Status: {playerData.status}</p>
-            <p>Is Streamer: <span className="font-bold">{playerData.is_streamer ? 'Yes' : 'No'}</span></p>
-            <p>Verified: <span className="font-bold">{playerData.verified ? 'Yes' : 'No'}</span></p>
-            <p>League: {playerData.league}</p>
-            <p>Streaming Platforms: {playerData.streaming_platforms?.join(', ') || 'None'}</p>
-          </div>
-        </div> */}
       </main>
     </>
   );
