@@ -1,6 +1,7 @@
 "use client"
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { UserProfile, PlayerStats, Game, status } from "@/types/types";
 import {
@@ -12,6 +13,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import { Button } from '@/components/ui/button';
 import Navbar from "@/components/Navbar";
 import React from 'react';
 
@@ -49,6 +51,10 @@ export default function Page({ params }: { params: Promise<{ username: string }>
 
   const extractDatesFromArchives = (archives: string[]): string[] => {
     return archives.map(url => url.split("/").slice(-2).join("/"));
+  };
+
+  const handleReview = () => {
+    console.log('Review');
   };
 
   // Fetch data from multiple endpoints
@@ -175,29 +181,40 @@ export default function Page({ params }: { params: Promise<{ username: string }>
           </section>
 
           {/* previous games */}
-          <section className='w-full min-h-40 p-4 rounded-lg bg-profile_card mb-4'>
-            <h2 className='text-white'>Previous Games</h2>
-            <label>Select a Month:</label>
-            <select onChange={(e) => { setSelectedDate(e.target.value) }}>
-              <option value="">--Select--</option>
-              {dates.map((date, index) => (
-                <option key={index} value={date}>
-                  {date}
-                </option>
-              ))}
-            </select>
+          <section className='w-full min-h-40 p-4 rounded-lg bg-profile_card mb-4 text-white'>
+            <div className='flex justify-between px-4'>
+              <h2 className='font-semibold  '>Previous Games</h2>
+              <select className='bg-profile_bg outline-none p-2 rounded-md' onChange={(e) => { setSelectedDate(e.target.value) }}>
+                <option value="">Select</option>
+                {dates.map((date, index) => (
+                  <option key={index} value={date}>
+                    {date}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div>
               {currentGames.map((game, index) => (
-                <div key={index} className='flex justify-between p-4 rounded-lg bg-profile_card mb-4'>
-                  <div>
-                    <h3 className='text-white'>{game.white.username} vs {game.black.username}</h3>
-                    <p className='text-gray-400'>{game.time_class}</p>
+                <Link href={game.url} target='_blank'>
+                  <div key={index} className='flex justify-between  px-4 py-2 rounded-lg bg-profile_bg m-2 '>
+                    <div className='flex items-center'>
+                      <Image src={game.time_class === 'rapid' ? '/rapid.png' : game.time_class === 'bullet' ? '/bullet.png' : '/blitz.png'} alt='game-type' width={25} height={25} />
+                    </div>
+                    <div className='flex items-center'>
+                      <h3 className='text-white'>{game.white.username} vs {game.black.username}</h3>
+                    </div>
+                    <div className='flex items-center'>
+                      <p className='text-white'>{game.white.result} - {game.black.result}</p>
+                    </div>
+                    <div className='flex items-center'>
+                      <Button className='bg-pawn' onClick={handleReview}>Review</Button>
+                    </div>
+                    <div className='flex items-center'>
+                      <p className='text-gray-400'>{new Date(game.end_time * 1000).toLocaleDateString()}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className='text-white'>{game.white.result} - {game.black.result}</p>
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
 
@@ -217,8 +234,6 @@ export default function Page({ params }: { params: Promise<{ username: string }>
               </PaginationNext>
             </Pagination>
           </section>
-
-
         </article>
       </main>
     </>

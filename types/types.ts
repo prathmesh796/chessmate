@@ -74,4 +74,5 @@ export interface Game {
     pgn: string;
     white: { username: string; result: string };
     black: { username: string; result: string };
+    end_time: number;
 }
