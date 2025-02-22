@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import Router from 'next/router';
 import { useEffect, useState } from 'react';
-import { UserProfile, PlayerStats, Game, status } from "@/types/types";
+import { UserProfile, PlayerStats, Game, RatingData } from "@/types/types";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -24,10 +24,12 @@ export default function Page({ params }: { params: Promise<{ username: string }>
   const [games, setGames] = useState<Game[] | null>(null);
   const [dates, setDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [status, setStatus] = useState<status | null>(null);
+  const [ratingHistory, setRatingHistory] = useState<RatingData[] | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
   const totalPages = games ? Math.ceil(games.length / limit) : 0;
+
+  const router = Router;
 
   // Get the current games to display
   const startIndex = (currentPage - 1) * limit;
@@ -53,8 +55,8 @@ export default function Page({ params }: { params: Promise<{ username: string }>
     return archives.map(url => url.split("/").slice(-2).join("/"));
   };
 
-  const handleReview = () => {
-    console.log('Review');
+  const handleReview = (game: Game) => {
+    router.push(`/review/game`);
   };
 
   // Fetch data from multiple endpoints
@@ -63,14 +65,12 @@ export default function Page({ params }: { params: Promise<{ username: string }>
       const profileRes = await fetch(`https://api.chess.com/pub/player/${username}`);
       const statsRes = await fetch(`https://api.chess.com/pub/player/${username}/stats`);
       const archivesRes = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`);
-      //const statusRes = await fetch(`https://api.chess.com/pub/player/${username}/is-online`);
 
       if (!profileRes.ok || !statsRes.ok || !archivesRes.ok) throw new Error("User not found");
 
       const profileData = await profileRes.json();
       const statsData = await statsRes.json();
       const archivesData = await archivesRes.json();
-      //const statusData = await statusRes.json();
 
       // Fetch latest month's games
       const latestGamesRes = await fetch(archivesData.archives[archivesData.archives.length - 1]);
@@ -144,10 +144,6 @@ export default function Page({ params }: { params: Promise<{ username: string }>
 
               <div className="flex flex-col items-left justify-center">
                 <Link href={userProfile.url}><h2 className="text-xl font-semibold text-center mb-2">{userProfile.username}</h2></Link>
-                <div className='flex items-center gap-1'>
-                  <div className={`w-2 h-2 rounded-full ml-2 ${status ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                  <p className='text-gray-600'>{status ? 'Online' : 'Offline'}</p>
-                </div>
               </div>
             </div>
           }
@@ -208,7 +204,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                       <p className='text-white'>{game.white.result} - {game.black.result}</p>
                     </div>
                     <div className='flex items-center'>
-                      <Button className='bg-pawn' onClick={handleReview}>Review</Button>
+                      <Button className='bg-pawn' onClick={() => {handleReview(game)}}>Review</Button>
                     </div>
                     <div className='flex items-center'>
                       <p className='text-gray-400'>{new Date(game.end_time * 1000).toLocaleDateString()}</p>

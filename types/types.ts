@@ -16,10 +16,6 @@ export interface UserProfile {
     streaming_platforms: string[];
 }
 
-export interface status {
-    online: boolean;
-}
-
 export interface RatingRecord {
     win: number;
     loss: number;
@@ -76,3 +72,8 @@ export interface Game {
     black: { username: string; result: string };
     end_time: number;
 }
+
+export interface RatingData {
+    date: string;
+    rating: number;
+  }
