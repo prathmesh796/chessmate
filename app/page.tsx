@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false); // New state variable for loading
+  const [FNG, setFNG] = useState(""); // State for FNG input
   const router = useRouter();
 
   const handleSearch = (e: any) => {
@@ -15,6 +16,16 @@ export default function Home() {
       setLoading(true);
       setTimeout(() => {
         router.push(`/search/${username}`);
+      }, 1000);
+    }
+  };
+
+  const handleReview = (e: any) => {
+    e.preventDefault();
+    if (FNG) {
+      setLoading(true);
+      setTimeout(() => {
+        router.push(`/review/${FNG}`);
       }, 1000);
     }
   };
@@ -55,6 +66,23 @@ export default function Home() {
                 disabled={loading} // Disable button when loading
               >
                 {loading ? "Searching..." : "Search"}
+              </button>
+            </form>
+
+            <form onSubmit={handleReview} className="flex flex-col items-center">
+              <input
+                type="text"
+                placeholder="Enter your chess.com username"
+                className="h-10 w-96 rounded-full my-10 mx-5 p-5 outline-none text-black"
+                value={FNG}
+                onChange={(e) => setFNG(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="h-10 w-36 bg-pawn rounded-full text-white"
+                disabled={loading} // Disable button when loading
+              >
+                {loading ? "Searching..." : "Review"}
               </button>
             </form>
           </>
