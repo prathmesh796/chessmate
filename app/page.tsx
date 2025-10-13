@@ -10,7 +10,7 @@ export default function Home() {
   const [FNG, setFNG] = useState(""); // State for FNG input
   const router = useRouter();
 
-  const handleSearch = (e: any) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (username) {
       setLoading(true);
@@ -20,7 +20,7 @@ export default function Home() {
     }
   };
 
-  const handleReview = (e: any) => {
+  const handleReview = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (FNG) {
       setLoading(true);

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Router from 'next/router';
 import { useEffect, useState } from 'react';
-import { UserProfile, PlayerStats, Game, RatingData } from "@/types/types";
+import { UserProfile, PlayerStats, Game } from "@/types/types";
 import {
   Pagination,
   PaginationContent,
@@ -24,7 +24,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
   const [games, setGames] = useState<Game[] | null>(null);
   const [dates, setDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [ratingHistory, setRatingHistory] = useState<RatingData[] | null>(null);
+  //const [ratingHistory, setRatingHistory] = useState<RatingData[] | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
   const totalPages = games ? Math.ceil(games.length / limit) : 0;
@@ -56,37 +56,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
   };
 
   const handleReview = (game: Game) => {
-    router.push(`/review/game`);
-  };
-
-  // Fetch data from multiple endpoints
-  const fetchUserData = async (username: string) => {
-    try {
-      const profileRes = await fetch(`https://api.chess.com/pub/player/${username}`);
-      const statsRes = await fetch(`https://api.chess.com/pub/player/${username}/stats`);
-      const archivesRes = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`);
-
-      if (!profileRes.ok || !statsRes.ok || !archivesRes.ok) throw new Error("User not found");
-
-      const profileData = await profileRes.json();
-      const statsData = await statsRes.json();
-      const archivesData = await archivesRes.json();
-
-      // Fetch latest month's games
-      const latestGamesRes = await fetch(archivesData.archives[archivesData.archives.length - 1]);
-      const latestGamesData = await latestGamesRes.json();
-
-      setUserProfile(profileData);
-      setStats(statsData);
-      setGames(latestGamesData.games);
-      setDates(extractDatesFromArchives(archivesData.archives));
-      //setStatus(statusData);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      setUserProfile(null);
-      setStats(null);
-      setGames(null);
-    }
+    router.push(`/review/${game.pgn}`);
   };
 
   // Fetch monthly games
@@ -110,9 +80,38 @@ export default function Page({ params }: { params: Promise<{ username: string }>
     };
 
     getUsername();
-  }, []);
+  }, [params]);
 
   useEffect(() => {
+    // Fetch data from multiple endpoints
+    const fetchUserData = async (username: string) => {
+      try {
+        const profileRes = await fetch(`https://api.chess.com/pub/player/${username}`);
+        const statsRes = await fetch(`https://api.chess.com/pub/player/${username}/stats`);
+        const archivesRes = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`);
+
+        if (!profileRes.ok || !statsRes.ok || !archivesRes.ok) throw new Error("User not found");
+
+        const profileData = await profileRes.json();
+        const statsData = await statsRes.json();
+        const archivesData = await archivesRes.json();
+
+        // Fetch latest month's games
+        const latestGamesRes = await fetch(archivesData.archives[archivesData.archives.length - 1]);
+        const latestGamesData = await latestGamesRes.json();
+
+        setUserProfile(profileData);
+        setStats(statsData);
+        setGames(latestGamesData.games);
+        setDates(extractDatesFromArchives(archivesData.archives));
+        //setStatus(statusData);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setUserProfile(null);
+        setStats(null);
+        setGames(null);
+      }
+    };
     if (username) {
       fetchUserData(username);
     }
@@ -135,7 +134,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
           {userProfile &&
             <div className="flex items-center justify-around mb-4">
               <Link href={userProfile.url}>
-                <img
+                <Image
                   src={userProfile.avatar || '/userimg.png'}
                   alt={`${userProfile.username}'s avatar`}
                   className="w-14 h-14 rounded-full mx-auto"
@@ -163,7 +162,14 @@ export default function Page({ params }: { params: Promise<{ username: string }>
 
           {/* Graph of the players ratio */}
           <section className='w-full min-h-40 p-4 rounded-lg bg-profile_card mb-4'>
+            <div>
+              {stats?.chess_rapid && (
+                <div className='text-white'>
+                  <h2 className='font-semibold mb-2'>Rapid Stats</h2>
 
+                </div>
+              )}
+            </div>
           </section>
 
           {/* win/lose percentage */}
@@ -192,7 +198,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
 
             <div>
               {currentGames.map((game, index) => (
-                <Link href={game.url} target='_blank'>
+                <Link key={index} href={game.url} target='_blank'>
                   <div key={index} className='flex justify-between  px-4 py-2 rounded-lg bg-profile_bg m-2 '>
                     <div className='flex items-center'>
                       <Image src={game.time_class === 'rapid' ? '/rapid.png' : game.time_class === 'bullet' ? '/bullet.png' : '/blitz.png'} alt='game-type' width={25} height={25} />
@@ -204,7 +210,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                       <p className='text-white'>{game.white.result} - {game.black.result}</p>
                     </div>
                     <div className='flex items-center'>
-                      <Button className='bg-pawn' onClick={() => {handleReview(game)}}>Review</Button>
+                      <Button className='bg-pawn' onClick={() => { handleReview(game) }}>Review</Button>
                     </div>
                     <div className='flex items-center'>
                       <p className='text-gray-400'>{new Date(game.end_time * 1000).toLocaleDateString()}</p>
