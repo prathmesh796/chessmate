@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import Router from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { UserProfile, PlayerStats, Game } from "@/types/types";
 import {
@@ -29,7 +29,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
   const limit = 10;
   const totalPages = games ? Math.ceil(games.length / limit) : 0;
 
-  const router = Router;
+  const router = useRouter();
 
   // Get the current games to display
   const startIndex = (currentPage - 1) * limit;
@@ -55,8 +55,21 @@ export default function Page({ params }: { params: Promise<{ username: string }>
     return archives.map(url => url.split("/").slice(-2).join("/"));
   };
 
-  const handleReview = (game: Game) => {
-    router.push(`/review/${game.pgn}`);
+  function extractMoves(pgn: string): string {
+    return pgn
+      .replace(/\[.*?\]\n?/g, "")        // remove all [Tags]
+      .replace(/\{.*?\}/g, "")          // remove comments like {[%clk ...]}
+      .replace(/\s+/g, " ")             // collapse spaces & newlines
+      .trim();
+  }
+
+
+  const handleReview = (pgn: string) => {
+    console.log("Reviewing PGN:", pgn);
+
+    const onlyMoves = extractMoves(pgn);
+    const encoded = btoa(onlyMoves);
+    router.push(`/review?data=${encoded}`);
   };
 
   // Fetch monthly games
@@ -67,6 +80,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
       const monthlyGamesData = await monthlyGamesRes.json();
 
       setGames(monthlyGamesData.games);
+      console.log("Monthly Games:", monthlyGamesData.games);
     } catch (error) {
       console.error("Error fetching monthly games:", error);
       setGames(null);
@@ -137,7 +151,9 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                 <Image
                   src={userProfile.avatar || '/userimg.png'}
                   alt={`${userProfile.username}'s avatar`}
-                  className="w-14 h-14 rounded-full mx-auto"
+                  className="rounded-full mx-auto"
+                  width={56}
+                  height={56}
                 />
               </Link>
 
@@ -210,7 +226,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                       <p className='text-white'>{game.white.result} - {game.black.result}</p>
                     </div>
                     <div className='flex items-center'>
-                      <Button className='bg-pawn' onClick={() => { handleReview(game) }}>Review</Button>
+                      <Button className='bg-pawn' onClick={() => handleReview(game.pgn)}>Review</Button>
                     </div>
                     <div className='flex items-center'>
                       <p className='text-gray-400'>{new Date(game.end_time * 1000).toLocaleDateString()}</p>

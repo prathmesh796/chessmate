@@ -26,19 +26,31 @@ const ChessBoard = ({ pgn }: { pgn?: string }) => {
     return true;
   };
 
-  return (
-    <div className="flex flex-col items-center">
-      <Chessboard
-        position={game.fen()}
-        onPieceDrop={onDrop}
-        boardWidth={400}
-        customBoardStyle={{
-          borderRadius: "10px",
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-        }}
-      />
-    </div>
-  );
+  const chessboardOptions = {
+    // your config options here
+    position: game.fen(),
+    boardStyle: {
+      display: "grid",
+      gridTemplateColumns: `repeat(${8}, 1fr)`,
+      overflow: "hidden",
+      width: '100%',
+      height: '100%',
+      position: 'relative',
+    },
+    pieceStyle: {
+      width: "25px",
+      height: "25px",
+    },
+    onPieceDrop: onDrop,
+  };
+
+return (
+  <div className="flex flex-col items-center">
+    <Chessboard
+      options={chessboardOptions}
+    />
+  </div>
+);
 };
 
 export default ChessBoard;
