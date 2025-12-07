@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
+import { useStockfish } from "@/hooks/useStockfish";
+import EvaluationBar from "./EvaluationBar";
 
 const ChessBoard = ({ pgn }: { pgn?: string }) => {
   const [game] = useState(new Chess());
@@ -11,6 +13,16 @@ const ChessBoard = ({ pgn }: { pgn?: string }) => {
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const isReviewMode = !!pgn;
+
+  // Initialize Stockfish for position analysis
+  const { evaluation, analyzePosition, isReady } = useStockfish();
+
+  // Analyze current position when it changes
+  useEffect(() => {
+    if (isReviewMode && isReady && currentPosition) {
+      analyzePosition(currentPosition);
+    }
+  }, [currentPosition, isReviewMode, isReady, analyzePosition]);
 
   // Initialize game positions from PGN
   useEffect(() => {
@@ -164,6 +176,11 @@ const ChessBoard = ({ pgn }: { pgn?: string }) => {
           </div>
         )}
       </section>
+
+      {/* Evaluation Bar - Only in review mode */}
+      {isReviewMode && (
+        <EvaluationBar evaluation={evaluation} />
+      )}
 
       {/* Moves History */}
       <section className="flex-1 bg-[#262421] rounded-lg border border-[#3d3d3d] shadow-lg overflow-hidden min-w-[350px]">
