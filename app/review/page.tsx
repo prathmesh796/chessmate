@@ -1,9 +1,10 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ChessBoard from "@/components/ChessBoard";
 
-export default function Page() {
+function ReviewContent() {
   const searchParams = useSearchParams();
   const encoded = searchParams.get("data");
 
@@ -62,5 +63,17 @@ export default function Page() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#262421] flex items-center justify-center">
+        <div className="text-white text-xl">Loading game...</div>
+      </div>
+    }>
+      <ReviewContent />
+    </Suspense>
   );
 };
