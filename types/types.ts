@@ -6,7 +6,7 @@ export interface UserProfile {
     url: string;
     username: string;
     followers: number;
-    country: string;
+    location: string;
     last_online: number;
     joined: number;
     status: string;
