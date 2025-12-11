@@ -17,6 +17,9 @@ export default function Page({ params }: { params: Promise<{ username: string }>
   const [dates, setDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedMode, setSelectedMode] = useState<'rapid' | 'blitz' | 'bullet' | 'daily'>('rapid');
+  const [heatmapFilter, setHeatmapFilter] = useState<'all' | 'rapid' | 'blitz' | 'bullet'>('all');
+  const [allGames, setAllGames] = useState<Game[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
   //const [ratingHistory, setRatingHistory] = useState<RatingData[] | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
@@ -55,6 +58,46 @@ export default function Page({ params }: { params: Promise<{ username: string }>
       .replace(/\s+/g, " ")             // collapse spaces & newlines
       .trim();
   }
+
+  // Helper function to get last 365 days
+  const getLast365Days = (): Date[] => {
+    const days: Date[] = [];
+    const today = new Date();
+    for (let i = 364; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      days.push(date);
+    }
+    return days;
+  };
+
+  // Process heatmap data
+  const processHeatmapData = (games: Game[], filter: 'all' | 'rapid' | 'blitz' | 'bullet'): Map<string, number> => {
+    const gameCountMap = new Map<string, number>();
+
+    // Filter games based on selected filter
+    const filteredGames = filter === 'all'
+      ? games
+      : games.filter(game => game.time_class === filter);
+
+    // Count games per day
+    filteredGames.forEach(game => {
+      const date = new Date(game.end_time * 1000);
+      const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+      gameCountMap.set(dateKey, (gameCountMap.get(dateKey) || 0) + 1);
+    });
+
+    return gameCountMap;
+  };
+
+  // Get color based on game count
+  const getHeatmapColor = (count: number): string => {
+    if (count === 0) return 'bg-gray-800';
+    if (count === 1) return 'bg-green-900/40';
+    if (count <= 3) return 'bg-green-700/60';
+    if (count <= 5) return 'bg-green-500/80';
+    return 'bg-green-400';
+  };
 
 
   const handleReview = (pgn: string) => {
@@ -134,6 +177,38 @@ export default function Page({ params }: { params: Promise<{ username: string }>
       fetchMonthlyGames(username, selectedDate);
     }
   }, [username, selectedDate]);
+
+  // Fetch all games for heatmap
+  useEffect(() => {
+    const fetchAllGames = async () => {
+      if (!username || dates.length === 0) return;
+
+      try {
+        const allGamesData: Game[] = [];
+
+        // Fetch games from all available months
+        for (const date of dates) {
+          const response = await fetch(`https://api.chess.com/pub/player/${username}/games/${date}`);
+          if (response.ok) {
+            const data = await response.json();
+            allGamesData.push(...data.games);
+          }
+        }
+
+        setAllGames(allGamesData);
+        console.log("All games loaded for heatmap:", allGamesData.length);
+      } catch (error) {
+        console.error("Error fetching all games:", error);
+      }
+    };
+
+    fetchAllGames();
+  }, [username, dates]);
+
+  // Set mounted state to prevent hydration errors
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <>
@@ -248,8 +323,8 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                   key={mode}
                   onClick={() => setSelectedMode(mode as 'rapid' | 'blitz' | 'bullet' | 'daily')}
                   className={`cursor-pointer px-4 py-2 rounded-md transition-all capitalize font-semibold ${selectedMode === mode
-                      ? 'bg-pawn text-white'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    ? 'bg-pawn text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
                     }`}
                 >
                   {mode}
@@ -468,12 +543,179 @@ export default function Page({ params }: { params: Promise<{ username: string }>
             </section>
           )}
 
-          {/* Heatmap placeholder - can be implemented later */}
+          {/* Activity Heatmap */}
           <section className='w-full min-h-40 p-6 rounded-lg bg-profile_card mb-4 text-white'>
-            <h2 className='text-xl font-bold mb-4'>Activity Heatmap</h2>
-            <div className='flex items-center justify-center h-32 bg-profile_bg rounded-lg'>
-              <p className='text-gray-400'>Coming Soon</p>
+            <div className='flex justify-between items-center mb-6'>
+              <h2 className='text-xl font-bold'>Activity Heatmap</h2>
+
+              {/* Filter Buttons */}
+              <div className='flex gap-2'>
+                {(['all', 'rapid', 'blitz', 'bullet'] as const).map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setHeatmapFilter(filter)}
+                    className={`px-4 py-2 rounded-md transition-all capitalize font-semibold text-sm ${heatmapFilter === filter
+                      ? 'bg-pawn text-white'
+                      : 'bg-profile_bg text-gray-400 hover:text-white hover:bg-gray-700'
+                      }`}
+                  >
+                    {filter === 'all' ? 'All Games' : filter}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {allGames.length > 0 && isMounted ? (
+              <div className='bg-profile_bg p-4 rounded-lg overflow-x-auto'>
+                {(() => {
+                  const days = getLast365Days();
+                  const gameCountMap = processHeatmapData(allGames, heatmapFilter);
+
+                  // Calculate the starting day of week (0 = Sunday, 6 = Saturday)
+                  const startDate = days[0];
+                  const startDayOfWeek = startDate.getDay();
+
+                  // Create a grid structure: array of weeks, each week has 7 days (Sun-Sat)
+                  const weeks: (Date | null)[][] = [];
+                  let currentWeek: (Date | null)[] = new Array(7).fill(null);
+
+                  // Fill the first week with nulls before the start date
+                  let dayIndex = 0;
+                  for (let i = startDayOfWeek; i < 7 && dayIndex < days.length; i++) {
+                    currentWeek[i] = days[dayIndex];
+                    dayIndex++;
+                  }
+                  weeks.push(currentWeek);
+
+                  // Fill remaining weeks
+                  while (dayIndex < days.length) {
+                    currentWeek = new Array(7).fill(null);
+                    for (let i = 0; i < 7 && dayIndex < days.length; i++) {
+                      currentWeek[i] = days[dayIndex];
+                      dayIndex++;
+                    }
+                    weeks.push(currentWeek);
+                  }
+
+                  // Calculate month labels based on when the month changes
+                  const monthLabels: { month: string; weekIndex: number }[] = [];
+                  let lastMonthYear = -1;
+
+                  weeks.forEach((week, weekIndex) => {
+                    // Find the first non-null day in the week
+                    const firstDay = week.find(day => day !== null);
+                    if (firstDay) {
+                      const currentMonth = firstDay.getMonth();
+                      const currentYear = firstDay.getFullYear();
+                      const monthYearKey = currentYear * 12 + currentMonth; // Unique key for year+month
+
+                      // Add label if it's a new month
+                      if (monthYearKey !== lastMonthYear) {
+                        monthLabels.push({
+                          month: firstDay.toLocaleDateString('en-US', { month: 'short' }),
+                          weekIndex: weekIndex
+                        });
+                        lastMonthYear = monthYearKey;
+                      }
+                    }
+                  });
+
+                  return (
+                    <div>
+                      {/* Month Labels */}
+                      <div className='flex gap-[3px] mb-2 ml-8'>
+                        {monthLabels.map((label, idx) => (
+                          <div
+                            key={idx}
+                            className='text-xs text-gray-400'
+                            style={{
+                              marginLeft: idx === 0 ? 0 : `${(label.weekIndex - (monthLabels[idx - 1]?.weekIndex || 0)) * 15}px`
+                            }}
+                          >
+                            {label.month}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Heatmap Grid */}
+                      <div className='flex gap-[3px]'>
+                        {/* Day labels (Sun=0, Mon=1, ..., Sat=6) */}
+                        <div className='flex flex-col gap-[3px] text-xs text-gray-400 pr-2'>
+                          <div style={{ height: '12px' }}></div> {/* Sun */}
+                          <div style={{ height: '12px' }}>Mon</div>
+                          <div style={{ height: '12px' }}></div> {/* Tue */}
+                          <div style={{ height: '12px' }}>Wed</div>
+                          <div style={{ height: '12px' }}></div> {/* Thu */}
+                          <div style={{ height: '12px' }}>Fri</div>
+                          <div style={{ height: '12px' }}></div> {/* Sat */}
+                        </div>
+
+                        {/* Weeks */}
+                        <div className='flex gap-[3px]'>
+                          {weeks.map((week, weekIndex) => (
+                            <div key={weekIndex} className='flex flex-col gap-[3px]'>
+                              {week.map((day, dayIndex) => {
+                                if (!day) {
+                                  // Empty cell for padding
+                                  return (
+                                    <div
+                                      key={dayIndex}
+                                      className='w-3 h-3'
+                                    />
+                                  );
+                                }
+
+                                const dateKey = day.toISOString().split('T')[0];
+                                const count = gameCountMap.get(dateKey) || 0;
+                                const color = getHeatmapColor(count);
+
+                                return (
+                                  <div
+                                    key={dayIndex}
+                                    className={`w-3 h-3 rounded-sm ${color} hover:ring-2 hover:ring-pawn transition-all cursor-pointer group relative`}
+                                    title={`${day.toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}: ${count} game${count !== 1 ? 's' : ''}`}
+                                  >
+                                    {/* Tooltip */}
+                                    <div className='absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 shadow-lg'>
+                                      {day.toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        year: 'numeric'
+                                      })}: {count} game{count !== 1 ? 's' : ''}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Legend */}
+                      <div className='flex items-center gap-2 mt-4 text-xs text-gray-400'>
+                        <span>Less</span>
+                        <div className='flex gap-1'>
+                          <div className='w-3 h-3 rounded-sm bg-gray-800'></div>
+                          <div className='w-3 h-3 rounded-sm bg-green-900/40'></div>
+                          <div className='w-3 h-3 rounded-sm bg-green-700/60'></div>
+                          <div className='w-3 h-3 rounded-sm bg-green-500/80'></div>
+                          <div className='w-3 h-3 rounded-sm bg-green-400'></div>
+                        </div>
+                        <span>More</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+              <div className='flex items-center justify-center h-32 bg-profile_bg rounded-lg'>
+                <p className='text-gray-400'>Loading game activity...</p>
+              </div>
+            )}
           </section>
 
           {/* previous games */}

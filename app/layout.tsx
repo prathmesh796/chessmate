@@ -17,10 +17,10 @@ export const metadata: Metadata = {
   description: "A scrapper for your chess.com account.",
 };
 
-export default function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) {
+export default function RootLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-chess_bg`}>
+      <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} antialiased bg-chess_bg`}>
         {children}
       </body>
     </html>
