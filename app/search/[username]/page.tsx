@@ -212,71 +212,70 @@ export default function Page({ params }: { params: Promise<{ username: string }>
 
   return (
     <>
-      <header>
+      <header className="bg-gradient-to-r from-profile_card to-transparent shadow-none px-0">
         <Navbar />
       </header>
-      <main className="flex min-h-screen px-44 py-10 bg-profile_bg">
+      <main className="flex min-h-screen px-24 py-10 md:px-40 lg:px-60 bg-gradient-to-br from-profile_bg via-[#181818] to-profile_bg">
         {/* Sidebar */}
-        <aside className="w-1/4 p-6 rounded-lg bg-profile_card text-white">
+        <aside className="w-1/4 p-7 rounded-2xl bg-gradient-to-b from-profile_card/90 via-[#232323]/95 to-profile_card/90 text-white shadow-xl border border-gray-700/40 backdrop-blur-lg sticky top-8 self-start min-w-[300px] max-w-sm transition-all duration-200">
           {userProfile && (
             <>
-              <div className="flex flex-col items-center mb-6">
-                <Link href={userProfile.url}>
+              <div className="flex flex-col items-center mb-8 space-y-1">
+                <Link href={userProfile.url} className="group">
                   <Image
                     src={userProfile.avatar || '/userimg.png'}
                     alt={`${userProfile.username}'s avatar`}
-                    className="rounded-full border-4 border-pawn mb-4"
-                    width={96}
-                    height={96}
+                    className="rounded-full border-4 border-pawn shadow-2xl shadow-pawn/40 group-hover:shadow-pawn/70 group-hover:ring-2 group-hover:scale-105 hover:ring-pawn/50 transition-all duration-200 mb-3"
+                    width={110}
+                    height={110}
                   />
                 </Link>
-
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-1">
                   <Link href={userProfile.url}>
-                    <h2 className="text-2xl font-bold hover:text-pawn transition-colors">
+                    <h2 className="text-2xl font-bold tracking-wide hover:text-pawn transition">
                       {userProfile.username}
                     </h2>
                   </Link>
                   {userProfile.verified && (
-                    <span className="text-blue-400" title="Verified">✓</span>
+                    <span className="text-blue-400 text-lg" title="Verified">
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="inline"><circle cx="10" cy="10" r="10" fill="#66c2ff"/><path d="M6 10l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </span>
                   )}
                 </div>
-
                 {userProfile.league && (
-                  <span className="px-3 py-1 bg-pawn/20 text-pawn rounded-full text-sm font-semibold mb-2">
+                  <span className="px-4 py-1 bg-pawn/20 text-pawn rounded-full text-xs font-semibold mb-1 border border-pawn/30 shadow-pawn/10 shadow">
                     {userProfile.league}
                   </span>
                 )}
-
                 {userProfile.is_streamer && (
-                  <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm">
-                    Streamer
+                  <span className="px-4 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs border border-purple-500/40 shadow-purple-500/20 shadow">
+                    <span className="mr-1 animate-pulse text-purple-500">●</span>Streamer
                   </span>
                 )}
               </div>
 
-              <div className='bg-gray-700 h-[1px] w-full rounded-full mb-4'></div>
+              <div className="bg-gradient-to-r from-transparent via-gray-600/30 to-transparent h-[1px] w-full mb-5"></div>
 
               {/* Profile Details */}
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Status:</span>
-                  <span className="font-semibold capitalize">{userProfile.status}</span>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Status:</span>
+                  <span className="font-medium text-green-400 capitalize">{userProfile.status}</span>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Followers:</span>
-                  <span className="font-semibold">{userProfile.followers.toLocaleString()}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Followers:</span>
+                  <span className="font-medium">{userProfile.followers.toLocaleString()}</span>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Country:</span>
-                  <span className="font-semibold">{userProfile.location}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Country:</span>
+                  <span className="font-medium">{userProfile.location}</span>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Joined:</span>
-                  <span className="font-semibold">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Joined:</span>
+                  <span className="font-medium">
                     {new Date(userProfile.joined * 1000).toLocaleDateString('en-US', {
                       month: 'short',
                       year: 'numeric'
@@ -284,9 +283,9 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Last Online:</span>
-                  <span className="font-semibold">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Last Online:</span>
+                  <span className="font-medium">
                     {new Date(userProfile.last_online * 1000).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric'
@@ -297,14 +296,12 @@ export default function Page({ params }: { params: Promise<{ username: string }>
 
               {userProfile.streaming_platforms && userProfile.streaming_platforms.length > 0 && (
                 <>
-                  <div className='bg-gray-700 h-[1px] w-full rounded-full my-4'></div>
+                  <div className="bg-gradient-to-r from-transparent via-gray-600/30 to-transparent h-[1px] w-full my-5"></div>
                   <div>
-                    <h3 className="text-gray-400 text-sm mb-2">Streaming On:</h3>
+                    <h3 className="text-gray-400 text-xs uppercase font-semibold tracking-widest mb-2">Streaming On</h3>
                     <div className="flex flex-wrap gap-2">
                       {userProfile.streaming_platforms.map((platform, idx) => (
-                        <span key={idx} className="px-2 py-1 bg-gray-700 rounded text-xs">
-                          {platform}
-                        </span>
+                        <span key={idx} className="px-2.5 py-1 bg-gray-800/70 rounded-full text-xs text-gray-50 border border-gray-700/30">{platform}</span>
                       ))}
                     </div>
                   </div>
@@ -314,18 +311,20 @@ export default function Page({ params }: { params: Promise<{ username: string }>
           )}
         </aside>
 
-        <article className='flex flex-col w-3/4 mx-4'>
+        <article className="flex flex-col w-3/4 mx-4 gap-8">
           {/* Game Mode Navigation */}
-          <nav className='flex justify-start p-4 rounded-lg bg-profile_card mb-4'>
-            <ul className='flex gap-4'>
+          <nav className="flex justify-start  p-3 pl-5 rounded-2xl bg-gradient-to-r from-profile_card/80 via-[#232323]/90 to-profile_card/75 mb-5 shadow-lg border border-gray-700/25 overflow-x-auto">
+            <ul className="flex gap-3 sm:gap-5 font-medium">
               {['rapid', 'daily', 'blitz', 'bullet'].map((mode) => (
                 <li
                   key={mode}
                   onClick={() => setSelectedMode(mode as 'rapid' | 'blitz' | 'bullet' | 'daily')}
-                  className={`cursor-pointer px-4 py-2 rounded-md transition-all capitalize font-semibold ${selectedMode === mode
-                    ? 'bg-pawn text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                    }`}
+                  className={`cursor-pointer px-5 py-2 rounded-xl transition-all capitalize tracking-wide font-semibold border
+                  ${selectedMode === mode
+                    ? 'bg-gradient-to-r from-pawn to-[#9bc16a] text-white shadow-md border-pawn/60 scale-105'
+                    : 'border-transparent text-gray-400 hover:text-white/95 hover:bg-gradient-to-r hover:from-gray-800/60 hover:to-gray-700/70 hover:border-pawn/30'
+                  }`}
+                  style={{ letterSpacing: '.05em' }}
                 >
                   {mode}
                 </li>
@@ -334,17 +333,17 @@ export default function Page({ params }: { params: Promise<{ username: string }>
           </nav>
 
           {/* Stats Display */}
-          <section className='w-full min-h-40 p-6 rounded-lg bg-profile_card mb-4'>
+          <section className="w-full min-h-40 p-8 rounded-2xl bg-gradient-to-br from-profile_card/90 via-[#232323] to-profile_card/90 mb-4 shadow-lg border border-gray-700/25">
             {stats && (() => {
-              const modeStats = selectedMode === 'rapid' ? stats.chess_rapid :
-                selectedMode === 'blitz' ? stats.chess_blitz :
-                  selectedMode === 'bullet' ? stats.chess_bullet :
-                    stats.chess_daily;
+              const modeStats = selectedMode === 'rapid' ? stats.chess_rapid
+                : selectedMode === 'blitz' ? stats.chess_blitz
+                : selectedMode === 'bullet' ? stats.chess_bullet
+                : stats.chess_daily;
 
               if (!modeStats) {
                 return (
-                  <div className='text-gray-400 text-center py-8'>
-                    <p className='text-lg'>No {selectedMode} stats available</p>
+                  <div className="text-gray-500 text-center py-12">
+                    <p className="text-lg">No <span className="capitalize">{selectedMode}</span> stats available</p>
                   </div>
                 );
               }
@@ -356,15 +355,14 @@ export default function Page({ params }: { params: Promise<{ username: string }>
               const drawRate = totalGames > 0 ? ((record.draw / totalGames) * 100).toFixed(1) : '0';
 
               return (
-                <div className='text-white'>
-                  <h2 className='text-2xl font-bold mb-6 capitalize'>{selectedMode} Chess</h2>
-
+                <div className="text-white">
+                  <h2 className="text-2xl font-extrabold mb-7 capitalize tracking-tight">{selectedMode} Chess</h2>
                   {/* Rating Cards */}
-                  <div className='grid grid-cols-2 gap-4 mb-6'>
-                    <div className='bg-profile_bg p-4 rounded-lg border-l-4 border-pawn'>
-                      <p className='text-gray-400 text-sm mb-1'>Current Rating</p>
-                      <p className='text-3xl font-bold text-pawn'>{last.rating}</p>
-                      <p className='text-gray-500 text-xs mt-1'>
+                  <div className="grid sm:grid-cols-2 gap-6 mb-7">
+                    <div className="bg-gradient-to-br from-profile_bg/85 to-[#202927] p-5 rounded-xl border-l-8 border-pawn shadow-md flex flex-col items-center gap-1 animate-fadeIn">
+                      <p className="text-gray-400 text-sm mb-1">Current Rating</p>
+                      <p className="text-4xl font-extrabold text-pawn drop-shadow">{last.rating}</p>
+                      <p className="text-gray-500 text-xs mt-1">
                         {new Date(last.date * 1000).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
@@ -374,10 +372,10 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                     </div>
 
                     {best && (
-                      <div className='bg-profile_bg p-4 rounded-lg border-l-4 border-yellow-500'>
-                        <p className='text-gray-400 text-sm mb-1'>Best Rating</p>
-                        <p className='text-3xl font-bold text-yellow-500'>{best.rating}</p>
-                        <p className='text-gray-500 text-xs mt-1'>
+                      <div className="bg-gradient-to-br from-profile_bg/85 to-[#252525] p-5 rounded-xl border-l-8 border-yellow-400 shadow-lg flex flex-col items-center gap-1 animate-fadeIn">
+                        <p className="text-gray-400 text-sm mb-1">Best Rating</p>
+                        <p className="text-4xl font-extrabold text-yellow-400 drop-shadow">{best.rating}</p>
+                        <p className="text-gray-500 text-xs mt-1">
                           {new Date(best.date * 1000).toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',
@@ -387,46 +385,44 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                       </div>
                     )}
                   </div>
-
                   {/* Record Stats */}
-                  <div className='bg-profile_bg p-4 rounded-lg mb-4'>
-                    <h3 className='text-lg font-semibold mb-4'>Game Record</h3>
-                    <div className='grid grid-cols-4 gap-4 text-center'>
+                  <div className="bg-gradient-to-br from-profile_bg/70 to-[#252525] p-5 rounded-xl mb-4 shadow border border-gray-700/15">
+                    <h3 className="text-lg font-bold mb-4">Game Record</h3>
+                    <div className="grid grid-cols-4 gap-5 text-center">
                       <div>
-                        <p className='text-gray-400 text-sm mb-1'>Total Games</p>
-                        <p className='text-2xl font-bold'>{totalGames}</p>
+                        <p className="text-gray-400 text-xs mb-1">Total Games</p>
+                        <p className="text-2xl font-bold">{totalGames}</p>
                       </div>
                       <div>
-                        <p className='text-green-400 text-sm mb-1'>Wins</p>
-                        <p className='text-2xl font-bold text-green-400'>{record.win}</p>
-                        <p className='text-xs text-gray-500'>{winRate}%</p>
+                        <p className="text-green-400 text-xs mb-1">Wins</p>
+                        <p className="text-2xl font-bold text-green-400">{record.win}</p>
+                        <p className="text-xs text-gray-500">{winRate}%</p>
                       </div>
                       <div>
-                        <p className='text-red-400 text-sm mb-1'>Losses</p>
-                        <p className='text-2xl font-bold text-red-400'>{record.loss}</p>
-                        <p className='text-xs text-gray-500'>{lossRate}%</p>
+                        <p className="text-red-400 text-xs mb-1">Losses</p>
+                        <p className="text-2xl font-bold text-red-400">{record.loss}</p>
+                        <p className="text-xs text-gray-500">{lossRate}%</p>
                       </div>
                       <div>
-                        <p className='text-gray-400 text-sm mb-1'>Draws</p>
-                        <p className='text-2xl font-bold'>{record.draw}</p>
-                        <p className='text-xs text-gray-500'>{drawRate}%</p>
+                        <p className="text-gray-300 text-xs mb-1">Draws</p>
+                        <p className="text-2xl font-bold text-gray-100">{record.draw}</p>
+                        <p className="text-xs text-gray-500">{drawRate}%</p>
                       </div>
                     </div>
                   </div>
-
                   {/* Daily-specific stats */}
                   {selectedMode === 'daily' && 'time_per_move' in record && (
-                    <div className='bg-profile_bg p-4 rounded-lg'>
-                      <h3 className='text-lg font-semibold mb-3'>Daily Stats</h3>
-                      <div className='grid grid-cols-2 gap-4'>
+                    <div className="bg-gradient-to-br from-profile_bg to-[#252525] p-5 rounded-xl shadow border border-gray-700/15">
+                      <h3 className="text-lg font-bold mb-3">Daily Stats</h3>
+                      <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <p className='text-gray-400 text-sm'>Avg Time Per Move</p>
-                          <p className='text-xl font-bold'>{record.time_per_move}s</p>
+                          <p className="text-gray-400 text-xs">Avg Time Per Move</p>
+                          <p className="text-lg font-bold">{record.time_per_move}s</p>
                         </div>
                         {record.timeout_percent !== undefined && (
                           <div>
-                            <p className='text-gray-400 text-sm'>Timeout Rate</p>
-                            <p className='text-xl font-bold'>{record.timeout_percent}%</p>
+                            <p className="text-gray-400 text-xs">Timeout Rate</p>
+                            <p className="text-lg font-bold">{record.timeout_percent}%</p>
                           </div>
                         )}
                       </div>
@@ -438,18 +434,16 @@ export default function Page({ params }: { params: Promise<{ username: string }>
           </section>
 
           {/* Win/Loss Percentage Visualization */}
-          <section className='w-full min-h-40 p-6 rounded-lg bg-profile_card mb-4'>
+          <section className="w-full min-h-40 p-7 rounded-2xl bg-gradient-to-br from-profile_card/80 via-[#232323]/90 to-profile_card/85 mb-4 shadow-lg border border-gray-700/20">
             {stats && (() => {
-              const modeStats = selectedMode === 'rapid' ? stats.chess_rapid :
-                selectedMode === 'blitz' ? stats.chess_blitz :
-                  selectedMode === 'bullet' ? stats.chess_bullet :
-                    stats.chess_daily;
+              const modeStats = selectedMode === 'rapid' ? stats.chess_rapid
+                : selectedMode === 'blitz' ? stats.chess_blitz
+                : selectedMode === 'bullet' ? stats.chess_bullet
+                : stats.chess_daily;
 
               if (!modeStats) return null;
-
               const { record } = modeStats;
               const totalGames = record.win + record.loss + record.draw;
-
               if (totalGames === 0) return null;
 
               const winPercent = (record.win / totalGames) * 100;
@@ -457,44 +451,54 @@ export default function Page({ params }: { params: Promise<{ username: string }>
               const drawPercent = (record.draw / totalGames) * 100;
 
               return (
-                <div className='text-white'>
-                  <h2 className='text-xl font-bold mb-4'>Performance Distribution</h2>
-
+                <div className="text-white">
+                  <h2 className="text-xl font-extrabold mb-3 tracking-tight">Performance Distribution</h2>
                   {/* Visual Bar */}
-                  <div className='w-full h-8 flex rounded-lg overflow-hidden mb-4'>
+                  <div className="w-full h-8 flex rounded-xl overflow-hidden mb-5 border border-gray-700/30 shadow-inner">
                     <div
-                      className='bg-green-500 flex items-center justify-center text-xs font-bold'
-                      style={{ width: `${winPercent}%` }}
+                      className="bg-green-500 flex items-center justify-center text-xs font-bold transition-all"
+                      style={{
+                        width: `${winPercent}%`,
+                        minWidth: winPercent > 0 && winPercent < 10 ? '20px' : undefined,
+                        color: winPercent > 15 ? 'white' : 'transparent'
+                      }}
                     >
                       {winPercent > 10 && `${winPercent.toFixed(1)}%`}
                     </div>
                     <div
-                      className='bg-red-500 flex items-center justify-center text-xs font-bold'
-                      style={{ width: `${lossPercent}%` }}
+                      className="bg-red-500 flex items-center justify-center text-xs font-bold transition-all"
+                      style={{
+                        width: `${lossPercent}%`,
+                        minWidth: lossPercent > 0 && lossPercent < 10 ? '20px' : undefined,
+                        color: lossPercent > 15 ? 'white' : 'transparent'
+                      }}
                     >
                       {lossPercent > 10 && `${lossPercent.toFixed(1)}%`}
                     </div>
                     <div
-                      className='bg-gray-500 flex items-center justify-center text-xs font-bold'
-                      style={{ width: `${drawPercent}%` }}
+                      className="bg-gray-500 flex items-center justify-center text-xs font-bold transition-all"
+                      style={{
+                        width: `${drawPercent}%`,
+                        minWidth: drawPercent > 0 && drawPercent < 10 ? '20px' : undefined,
+                        color: drawPercent > 15 ? 'white' : 'transparent'
+                      }}
                     >
                       {drawPercent > 10 && `${drawPercent.toFixed(1)}%`}
                     </div>
                   </div>
-
                   {/* Legend */}
-                  <div className='flex justify-around text-sm'>
-                    <div className='flex items-center gap-2'>
-                      <div className='w-4 h-4 bg-green-500 rounded'></div>
-                      <span>Wins: {record.win} ({winPercent.toFixed(1)}%)</span>
+                  <div className="flex flex-col sm:flex-row justify-around gap-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-green-500 rounded"></div>
+                      <span className="opacity-90">Wins: {record.win} <span className="hidden sm:inline">({winPercent.toFixed(1)}%)</span></span>
                     </div>
-                    <div className='flex items-center gap-2'>
-                      <div className='w-4 h-4 bg-red-500 rounded'></div>
-                      <span>Losses: {record.loss} ({lossPercent.toFixed(1)}%)</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-red-500 rounded"></div>
+                      <span className="opacity-90">Losses: {record.loss} <span className="hidden sm:inline">({lossPercent.toFixed(1)}%)</span></span>
                     </div>
-                    <div className='flex items-center gap-2'>
-                      <div className='w-4 h-4 bg-gray-500 rounded'></div>
-                      <span>Draws: {record.draw} ({drawPercent.toFixed(1)}%)</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gray-500 rounded"></div>
+                      <span className="opacity-90">Draws: {record.draw} <span className="hidden sm:inline">({drawPercent.toFixed(1)}%)</span></span>
                     </div>
                   </div>
                 </div>
@@ -504,23 +508,21 @@ export default function Page({ params }: { params: Promise<{ username: string }>
 
           {/* Additional Stats (Tactics, Puzzle Rush, FIDE) */}
           {stats && (stats.tactics || stats.puzzle_rush || stats.fide) && (
-            <section className='w-full min-h-40 p-6 rounded-lg bg-profile_card mb-4'>
-              <div className='text-white'>
-                <h2 className='text-xl font-bold mb-4'>Additional Stats</h2>
-
-                <div className='grid grid-cols-3 gap-4'>
+            <section className="w-full min-h-40 p-7 rounded-2xl bg-gradient-to-br from-profile_card/85 via-[#232323]/90 to-profile_card/75 mb-4 shadow-lg border border-gray-700/15">
+              <div className="text-white">
+                <h2 className="text-xl font-bold mb-5">Additional Stats</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {stats.fide && (
-                    <div className='bg-profile_bg p-4 rounded-lg text-center'>
-                      <p className='text-gray-400 text-sm mb-2'>FIDE Rating</p>
-                      <p className='text-2xl font-bold text-pawn'>{stats.fide}</p>
+                    <div className="bg-gradient-to-br from-profile_bg/95 to-[#222725]  p-5 rounded-xl text-center shadow-md border-l-4 border-pawn/40 animate-fadeIn">
+                      <p className="text-gray-400 text-xs mb-2">FIDE Rating</p>
+                      <p className="text-2xl font-bold text-pawn">{stats.fide}</p>
                     </div>
                   )}
-
                   {stats.tactics?.highest && (
-                    <div className='bg-profile_bg p-4 rounded-lg text-center'>
-                      <p className='text-gray-400 text-sm mb-2'>Tactics (Highest)</p>
-                      <p className='text-2xl font-bold text-blue-400'>{stats.tactics.highest.rating}</p>
-                      <p className='text-xs text-gray-500 mt-1'>
+                    <div className="bg-gradient-to-br from-profile_bg/95 to-[#1a233a] p-5 rounded-xl text-center shadow-md border-l-4 border-blue-400/40 animate-fadeIn">
+                      <p className="text-gray-400 text-xs mb-2">Tactics (Highest)</p>
+                      <p className="text-2xl font-bold text-blue-400">{stats.tactics.highest.rating}</p>
+                      <p className="text-xs text-gray-500 mt-2">
                         {new Date(stats.tactics.highest.date * 1000).toLocaleDateString('en-US', {
                           month: 'short',
                           year: 'numeric'
@@ -528,12 +530,11 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                       </p>
                     </div>
                   )}
-
                   {stats.puzzle_rush?.best && (
-                    <div className='bg-profile_bg p-4 rounded-lg text-center'>
-                      <p className='text-gray-400 text-sm mb-2'>Puzzle Rush</p>
-                      <p className='text-2xl font-bold text-purple-400'>{stats.puzzle_rush.best.score}</p>
-                      <p className='text-xs text-gray-500 mt-1'>
+                    <div className="bg-gradient-to-br from-profile_bg/95 to-[#291a36] p-5 rounded-xl text-center shadow-md border-l-4 border-purple-400/40 animate-fadeIn">
+                      <p className="text-gray-400 text-xs mb-2">Puzzle Rush</p>
+                      <p className="text-2xl font-bold text-purple-400">{stats.puzzle_rush.best.score}</p>
+                      <p className="text-xs text-gray-500 mt-2">
                         {stats.puzzle_rush.best.total_attempts} attempts
                       </p>
                     </div>
@@ -544,19 +545,20 @@ export default function Page({ params }: { params: Promise<{ username: string }>
           )}
 
           {/* Activity Heatmap */}
-          <section className='w-full min-h-40 p-6 rounded-lg bg-profile_card mb-4 text-white'>
-            <div className='flex justify-between items-center mb-6'>
-              <h2 className='text-xl font-bold'>Activity Heatmap</h2>
-
+          <section className="w-full min-h-40 p-8 rounded-2xl bg-gradient-to-br from-profile_card/90 via-[#232323] to-profile_card/90 mb-4 text-white shadow-lg border border-gray-700/15">
+            <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-6 gap-4">
+              <h2 className="text-xl font-bold tracking-tight">Activity Heatmap</h2>
               {/* Filter Buttons */}
-              <div className='flex gap-2'>
+              <div className="flex gap-2">
                 {(['all', 'rapid', 'blitz', 'bullet'] as const).map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setHeatmapFilter(filter)}
-                    className={`px-4 py-2 rounded-md transition-all capitalize font-semibold text-sm ${heatmapFilter === filter
-                      ? 'bg-pawn text-white'
-                      : 'bg-profile_bg text-gray-400 hover:text-white hover:bg-gray-700'
+                    className={`px-4 py-2 rounded-lg transition-all capitalize font-semibold text-sm shadow-sm focus:outline-none 
+                      ${
+                        heatmapFilter === filter
+                        ? 'bg-gradient-to-r from-pawn to-[#9bc16a] text-white shadow-md shadow-pawn/20 scale-105'
+                        : 'bg-gradient-to-br from-profile_bg to-[#232323] text-gray-400 hover:text-white border border-pawn/15 hover:border-pawn/40'
                       }`}
                   >
                     {filter === 'all' ? 'All Games' : filter}
@@ -566,7 +568,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
             </div>
 
             {allGames.length > 0 && isMounted ? (
-              <div className='bg-profile_bg p-4 rounded-lg overflow-x-auto'>
+              <div className="bg-gradient-to-br from-profile_bg to-[#252525] p-5 rounded-xl overflow-x-auto shadow-inner border border-gray-700/25">
                 {(() => {
                   const days = getLast365Days();
                   const gameCountMap = processHeatmapData(allGames, heatmapFilter);
@@ -602,34 +604,59 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                   let lastMonthYear = -1;
 
                   weeks.forEach((week, weekIndex) => {
-                    // Find the first non-null day in the week
-                    const firstDay = week.find(day => day !== null);
-                    if (firstDay) {
-                      const currentMonth = firstDay.getMonth();
-                      const currentYear = firstDay.getFullYear();
-                      const monthYearKey = currentYear * 12 + currentMonth; // Unique key for year+month
-
-                      // Add label if it's a new month
-                      if (monthYearKey !== lastMonthYear) {
-                        monthLabels.push({
-                          month: firstDay.toLocaleDateString('en-US', { month: 'short' }),
-                          weekIndex: weekIndex
-                        });
-                        lastMonthYear = monthYearKey;
+                    // Get all non-null days in the week
+                    const validDays = week.filter(day => day !== null) as Date[];
+                    if (validDays.length === 0) return;
+                    
+                    // Check if the week contains the 1st day of a month (new month starts)
+                    let firstOfMonthDay: Date | null = null;
+                    for (const day of validDays) {
+                      if (day.getDate() === 1) {
+                        firstOfMonthDay = day;
+                        break;
                       }
+                    }
+                    
+                    // Determine which month to show
+                    let monthToShow: Date | null = null;
+                    
+                    if (firstOfMonthDay) {
+                      // If week contains 1st of month, use that month
+                      const monthYearKey = firstOfMonthDay.getFullYear() * 12 + firstOfMonthDay.getMonth();
+                      if (monthYearKey !== lastMonthYear) {
+                        monthToShow = firstOfMonthDay;
+                      }
+                    } else {
+                      // Otherwise, check if the week's month is different from last shown
+                      // Use the last day of the week (most recent month in the week)
+                      const lastDay = validDays[validDays.length - 1];
+                      const monthYearKey = lastDay.getFullYear() * 12 + lastDay.getMonth();
+                      if (monthYearKey !== lastMonthYear) {
+                        monthToShow = lastDay;
+                      }
+                    }
+                    
+                    // Add the label if we found a new month
+                    if (monthToShow) {
+                      const monthYearKey = monthToShow.getFullYear() * 12 + monthToShow.getMonth();
+                      monthLabels.push({
+                        month: monthToShow.toLocaleDateString('en-US', { month: 'short' }),
+                        weekIndex: weekIndex
+                      });
+                      lastMonthYear = monthYearKey;
                     }
                   });
 
                   return (
                     <div>
                       {/* Month Labels */}
-                      <div className='flex gap-[3px] mb-2 ml-8'>
+                      <div className="flex gap-[3px] mb-2 ml-10">
                         {monthLabels.map((label, idx) => (
                           <div
                             key={idx}
-                            className='text-xs text-gray-400'
+                            className="text-[11px] text-gray-400 font-semibold"
                             style={{
-                              marginLeft: idx === 0 ? 0 : `${(label.weekIndex - (monthLabels[idx - 1]?.weekIndex || 0)) * 15}px`
+                              marginLeft: idx === 0 ? 0 : `${(label.weekIndex - (monthLabels[idx - 1]?.weekIndex || 0)) * 16}px`
                             }}
                           >
                             {label.month}
@@ -638,9 +665,9 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                       </div>
 
                       {/* Heatmap Grid */}
-                      <div className='flex gap-[3px]'>
+                      <div className="flex gap-[3px]">
                         {/* Day labels (Sun=0, Mon=1, ..., Sat=6) */}
-                        <div className='flex flex-col gap-[3px] text-xs text-gray-400 pr-2'>
+                        <div className="flex flex-col gap-[3px] text-xs text-gray-400 font-semibold pr-1 mt-[8px]">
                           <div style={{ height: '12px' }}></div> {/* Sun */}
                           <div style={{ height: '12px' }}>Mon</div>
                           <div style={{ height: '12px' }}></div> {/* Tue */}
@@ -651,16 +678,16 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                         </div>
 
                         {/* Weeks */}
-                        <div className='flex gap-[3px]'>
+                        <div className="flex gap-[3px]">
                           {weeks.map((week, weekIndex) => (
-                            <div key={weekIndex} className='flex flex-col gap-[3px]'>
+                            <div key={weekIndex} className="flex flex-col gap-[3px]">
                               {week.map((day, dayIndex) => {
                                 if (!day) {
                                   // Empty cell for padding
                                   return (
                                     <div
                                       key={dayIndex}
-                                      className='w-3 h-3'
+                                      className="w-4 h-4"
                                     />
                                   );
                                 }
@@ -672,7 +699,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                                 return (
                                   <div
                                     key={dayIndex}
-                                    className={`w-3 h-3 rounded-sm ${color} hover:ring-2 hover:ring-pawn transition-all cursor-pointer group relative`}
+                                    className={`w-4 h-4 rounded-md ${color} hover:ring-2 hover:ring-pawn/90 border border-black/10 hover:!z-20 transition-all cursor-pointer group relative`}
                                     title={`${day.toLocaleDateString('en-US', {
                                       month: 'short',
                                       day: 'numeric',
@@ -680,12 +707,12 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                                     })}: ${count} game${count !== 1 ? 's' : ''}`}
                                   >
                                     {/* Tooltip */}
-                                    <div className='absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 shadow-lg'>
-                                      {day.toLocaleDateString('en-US', {
+                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-950/95 text-white text-xs rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30">
+                                      <span className="font-semibold">{day.toLocaleDateString('en-US', {
                                         month: 'short',
                                         day: 'numeric',
                                         year: 'numeric'
-                                      })}: {count} game{count !== 1 ? 's' : ''}
+                                      })}:</span> {count} game{count !== 1 ? 's' : ''}
                                     </div>
                                   </div>
                                 );
@@ -696,14 +723,14 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                       </div>
 
                       {/* Legend */}
-                      <div className='flex items-center gap-2 mt-4 text-xs text-gray-400'>
+                      <div className="flex items-center gap-2 mt-4 text-xs text-gray-400">
                         <span>Less</span>
-                        <div className='flex gap-1'>
-                          <div className='w-3 h-3 rounded-sm bg-gray-800'></div>
-                          <div className='w-3 h-3 rounded-sm bg-green-900/40'></div>
-                          <div className='w-3 h-3 rounded-sm bg-green-700/60'></div>
-                          <div className='w-3 h-3 rounded-sm bg-green-500/80'></div>
-                          <div className='w-3 h-3 rounded-sm bg-green-400'></div>
+                        <div className="flex gap-1">
+                          <div className="w-4 h-4 rounded-md bg-gray-800"></div>
+                          <div className="w-4 h-4 rounded-md bg-green-900/40"></div>
+                          <div className="w-4 h-4 rounded-md bg-green-700/60"></div>
+                          <div className="w-4 h-4 rounded-md bg-green-500/80"></div>
+                          <div className="w-4 h-4 rounded-md bg-green-400"></div>
                         </div>
                         <span>More</span>
                       </div>
@@ -712,18 +739,22 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                 })()}
               </div>
             ) : (
-              <div className='flex items-center justify-center h-32 bg-profile_bg rounded-lg'>
-                <p className='text-gray-400'>Loading game activity...</p>
+              <div className="flex items-center justify-center h-32 bg-profile_bg rounded-xl animate-pulse">
+                <p className="text-gray-500">Loading game activity...</p>
               </div>
             )}
           </section>
 
-          {/* previous games */}
-          <section className='w-full min-h-40 p-4 rounded-lg bg-profile_card mb-4 text-white'>
-            <div className='flex justify-between px-4'>
-              <h2 className='font-semibold  '>Previous Games</h2>
-              <select className='bg-profile_bg outline-none p-2 rounded-md' onChange={(e) => { setSelectedDate(e.target.value) }}>
-                <option value="">Select</option>
+          {/* Previous games */}
+          <section className="w-full min-h-40 p-6 rounded-2xl bg-gradient-to-br from-profile_card/90 via-[#232323] to-profile_card/85 mb-4 text-white shadow-xl border border-gray-700/15">
+            <div className="flex flex-col sm:flex-row justify-between items-center px-3 mb-4 gap-3">
+              <h2 className="font-semibold text-lg tracking-wide">Previous Games</h2>
+              <select 
+                className="bg-gradient-to-br from-profile_bg to-[#232323] outline-none p-2.5 rounded-lg border border-gray-700/30 text-white focus:border-pawn/60 focus:ring-pawn/30 transition shadow-sm cursor-pointer min-w-[120px]"
+                onChange={(e) => { setSelectedDate(e.target.value || "") }}
+                value={selectedDate || ""}
+              >
+                <option value="">Select month</option>
                 {dates.map((date, index) => (
                   <option key={index} value={date}>
                     {date}
@@ -731,42 +762,57 @@ export default function Page({ params }: { params: Promise<{ username: string }>
                 ))}
               </select>
             </div>
-
-            <div>
-              <table className='w-full text-white'>
+            <div className="rounded-xl overflow-auto shadow border border-gray-700/20 bg-profile_bg/60">
+              <table className="w-full text-white text-sm">
                 <thead>
-                  <tr className='bg-profile_card rounded-lg'>
-                    <th className='p-2 text-left'>Type</th>
-                    <th className='p-2 text-left'>Players</th>
-                    <th className='p-2 text-left'>Result</th>
-                    <th className='p-2 text-left'>Date</th>
-                    <th className='p-2 text-left'>Actions</th>
+                  <tr className="bg-profile_card/90">
+                    <th className="p-3 text-left rounded-tl-xl font-semibold">Type</th>
+                    <th className="p-3 text-left font-semibold">Players</th>
+                    <th className="p-3 text-left font-semibold">Result</th>
+                    <th className="p-3 text-left font-semibold">Date</th>
+                    <th className="p-3 text-left rounded-tr-xl font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentGames.map((game, index) => (
-                    <tr key={index} className='border-b border-gray-700 hover:bg-profile_bg_hover'>
-                      <td className='p-2'>
+                    <tr 
+                      key={index} 
+                      className="border-b border-gray-700/40 hover:bg-gradient-to-r hover:from-pawn/10 hover:to-transparent transition-all duration-150 group"
+                    >
+                      <td className="p-3">
                         <Image
-                          src={game.time_class === 'rapid' ? '/rapid.png' : game.time_class === 'bullet' ? '/bullet.png' : '/blitz.png'}
-                          alt='game-type'
-                          width={25}
-                          height={25}
+                          src={
+                            game.time_class === 'rapid'
+                              ? '/rapid.png'
+                              : game.time_class === 'bullet'
+                                ? '/bullet.png'
+                                : '/blitz.png'
+                          }
+                          alt="game-type"
+                          width={28}
+                          height={28}
+                          className="rounded shadow-sm"
                         />
                       </td>
-                      <td className='p-2'>
-                        <Link href={game.url} target='_blank' className='hover:underline'>
-                          {game.white.username} vs {game.black.username}
+                      <td className="p-3">
+                        <Link href={game.url} target="_blank" className="hover:underline hover:text-pawn transition-colors">
+                          {game.white.username}
+                          <span className="mx-1 text-gray-400/70">vs</span>
+                          {game.black.username}
                         </Link>
                       </td>
-                      <td className='p-2'>
-                        {game.white.result} - {game.black.result}
+                      <td className="p-3">
+                        <span className="font-semibold text-green-400">{game.white.result}</span>
+                        {" "}
+                        <span className="text-gray-300/70">-</span>
+                        {" "}
+                        <span className="font-semibold text-red-400">{game.black.result}</span>
                       </td>
-                      <td className='p-2'>
-                        <p className='text-gray-400'>{new Date(game.end_time * 1000).toLocaleDateString()}</p>
-                      </td>
-                      <td className='p-2'>
-                        <Button className='bg-pawn' onClick={() => handleReview(game.pgn)}>Review</Button>
+                      <td className="p-3 text-gray-400">{new Date(game.end_time * 1000).toLocaleDateString()}</td>
+                      <td className="p-3">
+                        <Button className="bg-gradient-to-r from-pawn to-[#9bc16a] hover:from-[#9bc16a] hover:to-pawn shadow-lg hover:shadow-pawn/40 transition-all border-none outline-none text-xs px-4 py-2 font-medium rounded-md" onClick={() => handleReview(game.pgn)}>
+                          Review
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -774,21 +820,27 @@ export default function Page({ params }: { params: Promise<{ username: string }>
               </table>
             </div>
 
-            <Pagination>
-              <PaginationPrevious onClick={() => currentPage > 1 && handlePrevious()}>
-                <PaginationLink>Previous</PaginationLink>
-              </PaginationPrevious>
-              <PaginationContent>
-                {Array.from({ length: totalPages }, (_, index) => (
-                  <PaginationItem key={index + 1} onClick={() => handlePageChange(index + 1)}>
-                    <PaginationLink>{index + 1}</PaginationLink>
-                  </PaginationItem>
-                ))}
-              </PaginationContent>
-              <PaginationNext onClick={() => currentPage < totalPages && handleNext()}>
-                <PaginationLink>Next</PaginationLink>
-              </PaginationNext>
-            </Pagination>
+            <div className="flex justify-end mt-4">
+              <Pagination>
+                <PaginationPrevious onClick={() => currentPage > 1 && handlePrevious()}>
+                  <PaginationLink>Previous</PaginationLink>
+                </PaginationPrevious>
+                <PaginationContent>
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <PaginationItem 
+                      key={index + 1}
+                      onClick={() => handlePageChange(index + 1)}
+                      className={currentPage === index + 1 ? 'bg-pawn/40 rounded' : ''}
+                    >
+                      <PaginationLink>{index + 1}</PaginationLink>
+                    </PaginationItem>
+                  ))}
+                </PaginationContent>
+                <PaginationNext onClick={() => currentPage < totalPages && handleNext()}>
+                  <PaginationLink>Next</PaginationLink>
+                </PaginationNext>
+              </Pagination>
+            </div>
           </section>
         </article>
       </main>
