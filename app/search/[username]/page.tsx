@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Game } from "@/types/types";
-import Navbar from "@/components/NavBar";
+import NavBar from "@/components/NavBar";
 import HeatMap from '@/components/HeatMap';
 import PreviousGames from '@/components/PreviousGames';
 import ProfileAside from '@/components/ProfileAside';
@@ -90,7 +90,7 @@ export default function Page({ params }: { params: Promise<{ username: string }>
 
         <article className="flex flex-col w-3/4 mx-4 gap-8">
           {/* Game Mode Navigation */}
-          <Navbar selectedMode={selectedMode} setSelectedMode={setSelectedMode} />
+          <NavBar selectedMode={selectedMode} setSelectedMode={setSelectedMode} />
 
           {/* Stats Display */}
           {username && <StatsBanner username={username} selectedMode={selectedMode} />}

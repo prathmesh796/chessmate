@@ -1,6 +1,6 @@
 import { memo } from "react"
 
-const Navbar = memo(({ selectedMode, setSelectedMode }: { selectedMode: string, setSelectedMode: (mode: 'rapid' | 'blitz' | 'bullet' | 'daily') => void }) => {
+const NavBar = memo(({ selectedMode, setSelectedMode }: { selectedMode: string, setSelectedMode: (mode: 'rapid' | 'blitz' | 'bullet' | 'daily') => void }) => {
     return (
         <nav className="flex justify-start  p-3 pl-5 rounded-2xl bg-gradient-to-r from-profile_card/80 via-[#232323]/90 to-profile_card/75 mb-5 shadow-lg border border-gray-700/25 overflow-x-auto">
             <ul className="flex gap-3 sm:gap-5 font-medium">
@@ -23,4 +23,4 @@ const Navbar = memo(({ selectedMode, setSelectedMode }: { selectedMode: string, 
     )
 })
 
-export default Navbar
+export default NavBar
