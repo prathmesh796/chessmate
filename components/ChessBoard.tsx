@@ -5,6 +5,7 @@ import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import { useStockfish } from "@/hooks/useStockfish";
 import EvaluationBar from "./EvaluationBar";
+import EngineLines from "./EngineLines";
 
 const ChessBoard = ({ pgn }: { pgn?: string }) => {
   const [game] = useState(new Chess());
@@ -15,7 +16,7 @@ const ChessBoard = ({ pgn }: { pgn?: string }) => {
   const isReviewMode = !!pgn;
 
   // Initialize Stockfish for position analysis
-  const { evaluation, analyzePosition, isReady } = useStockfish();
+  const { evaluation, engineLines, analyzePosition, isReady } = useStockfish();
 
   // Analyze current position when it changes
   useEffect(() => {
@@ -107,9 +108,9 @@ const ChessBoard = ({ pgn }: { pgn?: string }) => {
 
   return (
     <div className="flex flex-col lg:flex-row items-start gap-6">
-      {/* Chessboard Section */}
+      {/* Left Column: Chessboard and Controls */}
       <section className="flex flex-col items-center">
-        <div className="mb-4" style={{ width: 480 }}>
+        <div className="mb-4" style={{ width: 600 }}>
           <Chessboard
             options={{
               position: isReviewMode ? currentPosition : game.fen(),
@@ -177,66 +178,94 @@ const ChessBoard = ({ pgn }: { pgn?: string }) => {
         )}
       </section>
 
-      {/* Evaluation Bar - Only in review mode */}
+      {/* Right Column: Evaluation Bar, Engine Lines, and Moves History */}
       {isReviewMode && (
-        <EvaluationBar evaluation={evaluation} />
-      )}
+        <div className="flex gap-4">
+          {/* Evaluation Bar */}
+          <EvaluationBar evaluation={evaluation} />
 
-      {/* Moves History */}
-      <section className="flex-1 bg-[#262421] rounded-lg border border-[#3d3d3d] shadow-lg overflow-hidden min-w-[350px]">
-        <div className="bg-[#312e2b] px-6 py-4 border-b border-[#3d3d3d]">
-          <h2 className="text-white font-bold text-lg flex items-center gap-2">
-            <span className="text-[#81b64c]">📋</span>
-            Moves History
-          </h2>
-        </div>
+          {/* Engine Lines and Moves History Column */}
+          <div className="flex flex-col gap-4 flex-1 w-[450px]">
+            {/* Engine Lines */}
+            <EngineLines lines={engineLines} currentPosition={currentPosition} />
 
-        <div className="p-4">
-          <ol className="list-none space-y-1 h-[500px] overflow-y-auto pr-2 scrollbar-custom">
-            {moves.map((movePair, index) => {
-              const moveNumber = index + 1;
-              const isWhiteActive = currentMoveIndex === moveNumber * 2 - 1;
-              const isBlackActive = currentMoveIndex === moveNumber * 2;
+            {/* Moves History */}
+            <section className="bg-[#262421] rounded-lg border border-[#3d3d3d] shadow-lg overflow-hidden">
+              <div className="bg-[#312e2b] px-6 py-4 border-b border-[#3d3d3d]">
+                <h2 className="text-white font-bold text-lg flex items-center gap-2">
+                  <span className="text-[#81b64c]">📋</span>
+                  Moves History
+                </h2>
+              </div>
 
-              return (
-                <li
-                  key={index}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-150 ${(isWhiteActive || isBlackActive) ? 'bg-[#3d3d3d]' : 'hover:bg-[#2f2f2f]'
-                    }`}
-                >
-                  <span className="text-gray-500 font-semibold min-w-[40px] text-sm">
-                    {moveNumber}.
-                  </span>
+              <div className="p-4">
+                <ol className="list-none space-y-1 h-[300px] overflow-y-auto pr-2 scrollbar-custom">
+                  {moves.map((movePair, index) => {
+                    const moveNumber = index + 1;
+                    const isWhiteActive = currentMoveIndex === moveNumber * 2 - 1;
+                    const isBlackActive = currentMoveIndex === moveNumber * 2;
 
-                  <div className="flex gap-2 flex-1">
-                    <span
-                      onClick={() => goToMove(moveNumber * 2 - 1)}
-                      className={`cursor-pointer px-4 py-2 rounded-md font-mono text-sm font-medium flex-1 text-center transition-all duration-150 ${isWhiteActive
-                        ? "bg-[#81b64c] text-white shadow-md scale-105"
-                        : "bg-[#312e2b] text-gray-300 hover:bg-[#3d3d3d] hover:text-white"
-                        }`}
-                    >
-                      {movePair[0]}
-                    </span>
-
-                    {movePair[1] && (
-                      <span
-                        onClick={() => goToMove(moveNumber * 2)}
-                        className={`cursor-pointer px-4 py-2 rounded-md font-mono text-sm font-medium flex-1 text-center transition-all duration-150 ${isBlackActive
-                          ? "bg-[#81b64c] text-white shadow-md scale-105"
-                          : "bg-[#312e2b] text-gray-300 hover:bg-[#3d3d3d] hover:text-white"
+                    return (
+                      <li
+                        key={index}
+                        className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-150 ${(isWhiteActive || isBlackActive) ? 'bg-[#3d3d3d]' : 'hover:bg-[#2f2f2f]'
                           }`}
                       >
-                        {movePair[1]}
-                      </span>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
+                        <span className="text-gray-500 font-semibold min-w-[40px] text-sm">
+                          {moveNumber}.
+                        </span>
+
+                        <div className="flex gap-2 flex-1">
+                          <span
+                            onClick={() => goToMove(moveNumber * 2 - 1)}
+                            className={`cursor-pointer px-4 py-2 rounded-md font-mono text-sm font-medium flex-1 text-center transition-all duration-150 ${isWhiteActive
+                              ? "bg-[#81b64c] text-white shadow-md scale-105"
+                              : "bg-[#312e2b] text-gray-300 hover:bg-[#3d3d3d] hover:text-white"
+                              }`}
+                          >
+                            {movePair[0]}
+                          </span>
+
+                          {movePair[1] && (
+                            <span
+                              onClick={() => goToMove(moveNumber * 2)}
+                              className={`cursor-pointer px-4 py-2 rounded-md font-mono text-sm font-medium flex-1 text-center transition-all duration-150 ${isBlackActive
+                                ? "bg-[#81b64c] text-white shadow-md scale-105"
+                                : "bg-[#312e2b] text-gray-300 hover:bg-[#3d3d3d] hover:text-white"
+                                }`}
+                            >
+                              {movePair[1]}
+                            </span>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            </section>
+          </div>
         </div>
-      </section>
+      )}
+
+
+      {/* Non-review mode: just show moves history */}
+      {!isReviewMode && (
+        <section className="flex-1 bg-[#262421] rounded-lg border border-[#3d3d3d] shadow-lg overflow-hidden min-w-[350px]">
+          <div className="bg-[#312e2b] px-6 py-4 border-b border-[#3d3d3d]">
+            <h2 className="text-white font-bold text-lg flex items-center gap-2">
+              <span className="text-[#81b64c]">📋</span>
+              Moves History
+            </h2>
+          </div>
+
+          <div className="p-4">
+            <ol className="list-none space-y-1 h-[500px] overflow-y-auto pr-2 scrollbar-custom">
+              {/* Moves will be rendered here in non-review mode */}
+            </ol>
+          </div>
+        </section>
+      )}
 
       <style jsx>{`
         .scrollbar-custom::-webkit-scrollbar {
