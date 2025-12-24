@@ -6,24 +6,60 @@ import { Chess } from "chess.js";
 import { useStockfish } from "@/hooks/useStockfish";
 import EvaluationBar from "./EvaluationBar";
 import EngineLines from "./EngineLines";
+import MoveExplainer from "./MoveExplainer";
+
 
 const ChessBoard = ({ pgn }: { pgn?: string }) => {
   const [game] = useState(new Chess());
   const [moves, setMoves] = useState<string[][]>([]);
+  const [gameHistory, setGameHistory] = useState<string[]>([]);
   const [allPositions, setAllPositions] = useState<string[]>([]);
+  const [evaluationsCache, setEvaluationsCache] = useState<Map<string, any>>(new Map());
+  const [linesCache, setLinesCache] = useState<Map<string, any>>(new Map());
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
+
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const isReviewMode = !!pgn;
 
   // Initialize Stockfish for position analysis
   const { evaluation, engineLines, analyzePosition, isReady } = useStockfish();
 
+  // Cache evaluations and lines when they update
+  useEffect(() => {
+    if (currentPosition && evaluation) {
+      setEvaluationsCache(prev => new Map(prev).set(currentPosition, evaluation));
+    }
+  }, [currentPosition, evaluation]);
+
+  useEffect(() => {
+    if (currentPosition && engineLines.length > 0) {
+      setLinesCache(prev => new Map(prev).set(currentPosition, engineLines));
+    }
+  }, [currentPosition, engineLines]);
+
   // Analyze current position when it changes
   useEffect(() => {
+    // If we have cached data, we could potentially skip analysis or just update it.
+    // For now, we always re-analyze to be safe, but the explainer will use the cache.
+    // If you wanted to SAVE resources, you could check cache first.
     if (isReviewMode && isReady && currentPosition) {
       analyzePosition(currentPosition);
     }
   }, [currentPosition, isReviewMode, isReady, analyzePosition]);
+
+  // Clear Move Explainer cache on unmount
+  useEffect(() => {
+    return () => {
+      // Clear all keys starting with "move-explainer-"
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("move-explainer-")) {
+          localStorage.removeItem(key);
+        }
+      });
+    };
+  }, []);
+
+
 
   // Initialize game positions from PGN
   useEffect(() => {
@@ -33,6 +69,8 @@ const ChessBoard = ({ pgn }: { pgn?: string }) => {
 
       // Get all moves
       const history = tempGame.history();
+      setGameHistory(history);
+
 
       // Generate all positions
       const positions: string[] = [];
@@ -189,7 +227,24 @@ const ChessBoard = ({ pgn }: { pgn?: string }) => {
             {/* Engine Lines */}
             <EngineLines lines={engineLines} currentPosition={currentPosition} />
 
+            {/* AI Move Explainer */}
+            {currentMoveIndex > 0 && (
+              <MoveExplainer
+                currentMove={gameHistory[currentMoveIndex - 1]}
+                fen={allPositions[currentMoveIndex - 1]}
+                bestMove={linesCache.get(allPositions[currentMoveIndex - 1])?.[0]?.moves?.[0] || null}
+                evalBefore={evaluationsCache.get(allPositions[currentMoveIndex - 1]) || null}
+                evalAfter={evaluation} // Current evaluation is the "After" evaluation
+                // However, for consistency, we might want to use the cache for the current position too if available
+                // evalAfter={evaluationsCache.get(currentPosition) || evaluation}
+                topLines={linesCache.get(allPositions[currentMoveIndex - 1]) || []}
+                moveNumber={Math.ceil(currentMoveIndex / 2)}
+                side={currentMoveIndex % 2 !== 0 ? "white" : "black"}
+              />
+            )}
+
             {/* Moves History */}
+
             <section className="bg-[#262421] rounded-lg border border-[#3d3d3d] shadow-lg overflow-hidden">
               <div className="bg-[#312e2b] px-6 py-4 border-b border-[#3d3d3d]">
                 <h2 className="text-white font-bold text-lg flex items-center gap-2">

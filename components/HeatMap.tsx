@@ -64,7 +64,7 @@ const HeatMap = memo(({ username, dates }: { username: string; dates: string[] }
                 }
 
                 setAllGames(allGamesData);
-                console.log("All games loaded for heatmap:", allGamesData.length);
+                //console.log("All games loaded for heatmap:", allGamesData.length);
             } catch (error) {
                 console.error("Error fetching all games:", error);
             }

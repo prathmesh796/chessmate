@@ -35,7 +35,7 @@ const PreviousGames = ({ games }: { games: Game[] }) => {
     };
 
     const handleReview = (pgn: string) => {
-        console.log("Reviewing PGN:", pgn);
+        //console.log("Reviewing PGN:", pgn);
 
         const onlyMoves = extractMoves(pgn);
         const encoded = btoa(onlyMoves);
